@@ -46,6 +46,7 @@ namespace BlazorApp1.Services
                 return new IEscolaServiceResponse(false, $"Erro ao adicionar turma: {ex.Message}");
             }
         }
+
         public IEscolaServiceResponse DelTurma(Guid turmaId)
         {
             if (Dados.Turmas.FirstOrDefault(x => x.Id.Equals(turmaId)) is not TurmaModel turma)
@@ -68,6 +69,7 @@ namespace BlazorApp1.Services
             _service.Save();
             return new IEscolaServiceResponse(true, "Turma removida");
         }
+
         public  IEscolaServiceResponse AddProfessor(Guid turmaId, string nome, string materia)
         {
             if (Dados.Turmas.FirstOrDefault(x => x.Id.Equals(turmaId)) is not TurmaModel turma)
@@ -99,6 +101,7 @@ namespace BlazorApp1.Services
 
             return new IEscolaServiceResponse(true, "Professor adicionado com sucesso");
         }
+
         public IEscolaServiceResponse AddHorario(Guid turmaId, string day, string ord, string disc)
         {
             try

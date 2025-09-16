@@ -52,8 +52,14 @@ namespace BlazorApp1.Services
                 return new IEscolaServiceResponse(false, "O identificador da turma não é válido.");
 
             foreach (var professor in Dados.Professores)
+            {
                 foreach (var aula in professor.Turmas.Where(x => x.turmaId.Equals(turmaId)).ToList())
                     professor.Turmas.Remove(aula);
+
+                if (professor.Turmas.Any())
+                    continue;
+                Dados.Professores.Remove(professor);
+            }
 
             foreach (var calendario in Dados.Calendarios.Where(x => x.Turma.Equals(turmaId)).ToList())
                 Dados.Calendarios.Remove(calendario);

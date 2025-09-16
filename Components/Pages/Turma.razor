@@ -1,0 +1,83 @@
+﻿@page "/turma"
+@inject IJSRuntime JSRuntime
+@rendermode InteractiveServer
+@inject NavigationManager NavManager
+@using BlazorApp1.Components.ViewElements
+
+<PageTitle>Turmas</PageTitle>
+
+<p class="text-center text-black pb-1 fs-2">Turmas</p>
+
+<button type="button" class="btn mb-3" style="background-color: #0F6EFF; color: white;" data-toggle="modal" data-target="#exampleModal" data-whatever="mdo">Add turma</button>
+
+@if (AlertaPopup is not null)
+{
+	<PopupElement Message="@AlertaPopup.Message" Type="@AlertaPopup.Type" OnDismiss="() => AlertaPopup = null" />
+}
+
+
+<div class="table-responsive mt-3 rounded-4 shadow-sm overflow-hidden">
+	<table class="table table-bordered border-secundary align-middle text-center mb-0 table-hover">
+		<thead class="table-secondary">
+			<tr>
+				<th>Turma</th>
+				<th>Serie</th>
+				<th>Estudantes</th>
+			</tr>
+		</thead>
+		@foreach (var turma in Dados.Turmas.OrderBy(x => x.Ano).ToList())
+		{
+			int id = Dados.Turmas.IndexOf(turma);
+			<tr class="hover" style="cursor: pointer;" @onclick="() => GoToTurma(id)">
+				<td>@turma.turma</td>
+				<td>@turma.Ano° ano</td>
+				<td>@turma.Alunos.Count</td>
+			</tr>
+		}
+	</table>
+</div>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalLabel">Adicionar Turma</h5>
+			</div>
+			<div class="modal-body">
+				<form>
+					<div class="form-group">
+						<label for="message-text" class="col-form-label">Turma</label>
+						<div class="btn-group form-control" style="border: none;">
+							<input type="text" class="form-control" id="inputTurmaNome" placeholder="Nome da Turma" value="@modalValues[0]" @oninput="AtualizarNome">
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label for="recipient-name" class="col-form-label">Ano</label>
+						<div class="btn-group form-control" style="border: none;">
+							<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+								@modalValues[1]
+							</button>
+							<div class="dropdown-menu">
+								@foreach (int ano in AnoDaTurma)
+								{
+									<a class="dropdown-item" style="cursor:pointer;" @onclick="() => GetComboClick(ano)">@($"{ano}° ano")</a>
+								}
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+				<button type="button" class="btn btn-success" data-dismiss="modal" @onclick="Adicionar_btn">Adicionar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<style>
+.hover:hover{
+	background-color: #b1b1b173;
+}
+</style>

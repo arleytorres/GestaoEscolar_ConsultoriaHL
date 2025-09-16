@@ -1,0 +1,41 @@
+﻿@page "/"
+
+<PageTitle>Escola</PageTitle>
+
+<p class="text-center text-black pb-3 fs-2">Turmas</p>
+
+<ul class="list-group" style="width:600px; justify-self: center;">
+	@if (!Dados.Turmas.Any())
+	{
+		<li class="list-group-item align-items-center text-center">
+			Nenhuma turma cadastrada
+		</li>
+	}
+
+	@foreach (var turma in Dados.Turmas.GroupBy(x => x.Ano))
+	{
+		<li class="list-group-item d-flex justify-content-between align-items-center">
+			@($"{turma.FirstOrDefault()?.Ano}° ano")
+			<span class="badge text-bg-primary">@turma.Count()</span>
+		</li>
+	}
+</ul>
+
+<p class="text-center text-black mt-5 pb-3 fs-2">Estudantes por Série</p>
+
+<ul class="list-group" style="width:600px; justify-self: center;">
+	@if (!Dados.Turmas.Any())
+	{
+		<li class="list-group-item align-items-center text-center">
+			Nenhuma turma cadastrada
+		</li>
+	}
+
+	@foreach (var turma in Dados.Turmas.GroupBy(x => x.Ano))
+	{
+		<li class="list-group-item d-flex justify-content-between align-items-center">
+			@($"{turma.FirstOrDefault()?.Ano}° ano")
+			<span class="badge text-bg-primary">@turma.SelectMany(x => x.Alunos).Count()</span>
+		</li>
+	}
+</ul>

@@ -1,0 +1,94 @@
+﻿@page "/diarioSub/{professorId:int}/{turmaId:int}/{materiaId:int}"
+@rendermode InteractiveServer
+@inject IJSRuntime JSRuntime
+@using System.Globalization
+@using BlazorApp1.Models
+
+<PageTitle>Diário - @ThisTurma.Ano° ano @ThisTurma.turma</PageTitle>
+
+<p class="text-center text-black fs-2">@ThisTurma.Ano° ano @ThisTurma.turma</p>
+<p class="text-center text-black pb-1 fs-3">@materia</p>
+
+<div class="row row-cols-2 justify-content-center">
+
+    <div class="col-md-6 col-lg-5">
+        <p class="text-center text-black pb-1 fs-4">@mesAtualFormatado</p>
+        <table class="table table-bordered text-center">
+            <thead>
+                <tr>
+                    <th>Dom</th>
+                    <th>Seg</th>
+                    <th>Ter</th>
+                    <th>Qua</th>
+                    <th>Qui</th>
+                    <th>Sex</th>
+                    <th>Sab</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < semanasDoMes.Count; i++)
+                {
+                    <tr>
+                        @foreach (var dia in semanasDoMes[i])
+                        {
+                            if (dia == null)
+                            {
+                                <td></td>
+                            }
+                            else
+                            {
+                                var calendario = Dados.Calendarios.FirstOrDefault(x => x.Turma.Equals(ThisTurma.Id) && x.Materia.Equals(materia) && x.Dia.Equals(dia.Value.ToString("dddd", new CultureInfo("pt-BR"))));
+                                if (calendario is CalendarioModel)
+                                {
+                                    string classCss = (dia.Value.Day == dayInMonth ? "text-primary fw-bold" : "text-success fw-bold date");
+                                    <td class="@classCss" @onclick='() => OnButtonClick(dia.Value.Day)'>@dia.Value.Day</td>
+                                }
+                                else
+                                {
+                                    <td class="text-secondary">@dia.Value.Day</td>
+                                }
+                            }
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+
+    @if (dayInMonth != 0)
+    {
+        <div class="col-md-6 col-lg-5">
+            <p class="text-center text-black pb-1 fs-4">Estudante</p>
+            <div class="table-container">
+                <table class="table table-bordered table-sm">
+                    <thead>
+                        <tr>
+                            <th>Ord</th>
+                            <th>Nome</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var aluno in Dados.Alunos.Where(x => ThisTurma.Alunos.Contains(x.Id)).ToList())
+                        {
+                            <tr>
+                                <td>@indexOfAlunos</td>
+                                <td>@aluno.Name</td>
+                            </tr>
+                            indexOfAlunos++;
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+
+
+@if (dayInMonth != 0)
+{
+    <div class="row justify-content-center align-items-center">
+        <span class="fs-5 text-center">Registro</span>
+        <textarea class="" id="" name="" rows="4" cols="50" style="resize:none; width: 82%;" value="@anotacaoShow" @oninput="OnTextEnter"></textarea>
+    </div>
+}

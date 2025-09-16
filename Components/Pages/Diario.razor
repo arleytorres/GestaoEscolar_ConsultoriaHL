@@ -1,0 +1,35 @@
+﻿@page "/diario"
+@rendermode InteractiveServer
+@inject NavigationManager NavManager
+
+<PageTitle>Diário</PageTitle>
+
+<p class="text-center text-black pb-1 fs-2">Diário</p>
+
+<div class="text-center">
+    <div class="btn-group">
+        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            @(selectedProfessor is not null ? selectedProfessor.Name : "Selecionar")
+        </button>
+        <div class="dropdown-menu">
+            @foreach (var professor in Dados.Professores)
+            {
+                <a class="dropdown-item" style="cursor:pointer;" @onclick='() => OnButtonClick("dropbox", professor.Id)'>@professor.Name</a>
+            }
+        </div>
+    </div>
+
+    <div class="row row-cols-2 gap-5 mt-5 align-items-center justify-content-center">
+
+        @if (selectedProfessor is not null)
+        {
+            foreach (var turmaInfo in selectedProfessor.Turmas)
+            {
+                var turma = Dados.Turmas.FirstOrDefault(x => x.Id.Equals(turmaInfo.turmaId));
+                <div class="col-3 p-5 border rounded-3 border-primary circle" @onclick='() => GotoTurmaDetails(Dados.Professores.IndexOf(selectedProfessor), Dados.Turmas.IndexOf(turma), (int)turmaInfo.materia)'>
+                    <span class="fs-5">@turma.Ano° ano @turma.turma<br>@turmaInfo.materia.ToString().Substring(0, 3)</span>
+                </div>
+            }
+        }
+    </div>
+</div>

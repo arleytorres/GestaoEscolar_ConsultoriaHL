@@ -1,0 +1,275 @@
+﻿@page "/turmaSub/{id:int}"
+@using System.Globalization
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavManager
+@rendermode InteractiveServer
+@using BlazorApp1.Components.ViewElements
+
+<PageTitle>Turma</PageTitle>
+
+@if (ThisTurma != null)
+{
+<p class="text-center text-black pb-1 fs-2">@($"{Dados.Turmas[id].Ano}° ano ({Dados.Turmas[id].turma})")</p>
+<p class="text-center text-black fs-3">Horário</p>
+<div class="text-center d-flex justify-content-between">
+	<button type="button" class="btn" style="background-color: #0F6EFF; color: white;" data-toggle="modal" data-target="#CalendarioModal" data-whatever="mdo">Add aula</button>
+	<button type="button" class="btn btn-danger align-self-end" style="color: white;" data-toggle="modal" data-target="#confirmarModal">Del Turma</button>
+</div>
+
+@if (AlertaPopup is not null)
+{
+	<div class="mt-2">
+		<PopupElement Message="@AlertaPopup.Message" Type="@AlertaPopup.Type" OnDismiss="() => AlertaPopup = null" />
+	</div>
+}
+
+<div class="table-responsive mt-3 rounded-4 shadow-sm overflow-hidden">
+	<table class="table table-bordered border-secundary align-middle text-center mb-0 table-hover">
+		<thead class="table-secondary">
+			<tr>
+				<th>Dom.</th>
+				<th>Seg.</th>
+				<th>Ter.</th>
+				<th>Qua.</th>
+				<th>Qui.</th>
+				<th>Sex.</th>
+				<th>Sab.</th>
+			</tr>
+		</thead>
+
+		@for (int i = 1; i <= Horarios.MaxBy(x => x.Posicao)?.Posicao; i++)
+		{
+			<tr>
+				<td>@Horarios.Find(x => x.Dia.ToLower().Equals("domingo") && x.Posicao.Equals(i))?.Materia.ToString().Substring(0, 4)</td>
+				<td>@Horarios.Find(x => x.Dia.ToLower().Equals("segunda-feira") && x.Posicao.Equals(i))?.Materia.ToString().Substring(0, 4)</td>
+				<td>@Horarios.Find(x => x.Dia.ToLower().Equals("terça-feira") && x.Posicao.Equals(i))?.Materia.ToString().Substring(0, 4)</td>
+				<td>@Horarios.Find(x => x.Dia.ToLower().Equals("quarta-feira") && x.Posicao.Equals(i))?.Materia.ToString().Substring(0, 4)</td>
+				<td>@Horarios.Find(x => x.Dia.ToLower().Equals("quinta-feira") && x.Posicao.Equals(i))?.Materia.ToString().Substring(0, 4)</td>
+				<td>@Horarios.Find(x => x.Dia.ToLower().Equals("sexta-feira") && x.Posicao.Equals(i))?.Materia.ToString().Substring(0, 4)</td>
+				<td>@Horarios.Find(x => x.Dia.ToLower().Equals("sábado") && x.Posicao.Equals(i))?.Materia.ToString().Substring(0, 4)</td>
+			</tr>
+		}
+	</table>
+</div>
+
+<div class="row mt-5 mb-5">
+	<div class="col-md-6">
+		<!-- PRIMEIRA TABELA -->
+
+		<div class="flex-grow-1 text-center">
+			<p class="mx-auto mb-0 fs-3">Diário</p>
+		</div>
+
+		<div class="flex-grow-1">
+			<button class="btn btn-primary me-auto mb-2" style="background-color: #0F6EFF; color: white;" data-toggle="modal" data-target="#DiarioModal" data-whatever="mdo">Add</button>
+		</div>
+		<div class="table-responsive rounded-4 overflow-hidden shadow-sm mb-0">
+			<table class="table table-bordered table-hover mb-0">
+				<thead class="table-secondary">
+					<tr class="text-center">
+						<th>Prof</th>
+						<th>Disc</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var professor in Dados.Professores.Where(x => x.Turmas.Any(x => x.turmaId.Equals(ThisTurma.Id))).ToList())
+					{
+						foreach (var aula in professor.Turmas.Where(x => x.turmaId.Equals(ThisTurma.Id)))
+						{
+							<tr class="text-center">
+								<td>@professor.Name</td>
+								<td>@aula.materia.ToString()</td>
+							</tr>
+						}
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<!-- SEGUNDA TABELA -->
+	<div class="col-md-6">
+		<div class="flex-grow-1 text-center">
+			<p class="mx-auto fs-3 mb-0">Estudante</p>
+		</div>
+
+		<div class="flex-grow-1">
+			<button class="btn btn-primary me-auto mb-2" style="background-color: #0F6EFF; color: white;" data-toggle="modal" data-target="#EstudanteModal" data-whatever="mdo">Add</button>
+		</div>
+		<div class="table-responsive rounded-4 overflow-hidden shadow-sm mb-0">
+			<table class="table table-bordered table-hover mb-0">
+				<thead class="table-secondary">
+					<tr class="text-center"> 
+						<th>Ord</th>
+						<th>Nome</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var aluno in Dados.Alunos.Where(x => ThisTurma.Alunos.Contains(x.Id)).ToList().OrderBy(x => x.Name))
+					{
+						<tr class="text-center">
+							<td>@incrementAluno</td>
+							<td>@aluno.Name</td>
+						</tr>
+						incrementAluno++;
+					}
+				</tbody>
+			</table>
+		</div>
+
+	</div>
+</div>
+
+
+
+<!-- ///// MODAL1 ///// -->
+<div class="modal fade" id="CalendarioModal" tabindex="-1" role="dialog" aria-labelledby="CalendarioModalLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="CalendarioModalLabel">Adicionar Aula</h5>
+
+			</div>
+			<div class="modal-body">
+				<form>
+					<div class="form-group">
+						<label for="recipient-name" class="col-form-label">Dia da Semana</label>
+						<div class="btn-group form-control" style="border:none;">
+							<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+								@modalValues[0][0]
+							</button>
+							<div class="dropdown-menu">
+								@foreach (string dia in new CultureInfo("pt-BR").DateTimeFormat.DayNames)
+								{
+									<a class="dropdown-item" style="cursor:pointer;" @onclick='() => GetComboClick("horario_1", dia)'>@dia</a>
+								}
+							</div>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label for="message-text" class="col-form-label">Aula</label>
+						<div class="btn-group form-control" style="border:none;">
+							<button type="button" id="combobox2" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+								@modalValues[0][1]
+							</button>
+							<div class="dropdown-menu">
+								<a class="dropdown-item" style="cursor:pointer;" @onclick='() => GetComboClick("horario_2", "1° Aula")'>1° Aula</a>
+								<a class="dropdown-item" style="cursor:pointer;" @onclick='() => GetComboClick("horario_2", "2° Aula")'>2° Aula</a>
+								<a class="dropdown-item" style="cursor:pointer;" @onclick='() => GetComboClick("horario_2", "3° Aula")'>3° Aula</a>
+								<a class="dropdown-item" style="cursor:pointer;" @onclick='() => GetComboClick("horario_2", "4° Aula")'>4° Aula</a>
+								<a class="dropdown-item" style="cursor:pointer;" @onclick='() => GetComboClick("horario_2", "5° Aula")'>5° Aula</a>
+							</div>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label for="message-text" class="col-form-label">Disciplina</label>
+						<div class="btn-group form-control" style="border:none;">
+							<button type="button" id="combobox2" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+								@modalValues[0][2]
+							</button>
+							<div class="dropdown-menu">
+								@foreach (var disciplina in Dados.Professores.SelectMany(x => x.Turmas).Where(x => x.turmaId.Equals(ThisTurma.Id)).GroupBy(x => x.materia))
+								{
+									<a class="dropdown-item" style="cursor:pointer;" @onclick='() => GetComboClick("horario_3", disciplina.Key.ToString())'>@disciplina.Key</a>
+								}
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+				<button type="button" class="btn btn-success" data-dismiss="modal" @onclick='() => OnButtonClick("horariobtn")'>Adicionar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- ///// MODAL #2 ///// -->
+<div class="modal fade" id="DiarioModal" tabindex="-1" role="dialog" aria-labelledby="DiarioModalLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="DiarioModalLabel">Adicionar Professor</h5>
+
+			</div>
+			<div class="modal-body">
+				<form>
+					<div class="form-group">
+						<label for="message-text" class="col-form-label">Professor</label>
+						<div class="btn-group form-control" style="border:none;">
+							<input type="text" class="form-control" id="inputTurmaProfessor" placeholder="Nome do Professor" value="@modalValues[1][0]" @oninput='(ChangeEventArgs e) => inputTextChange(e, "professor")'>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label for="message-text" class="col-form-label">Disciplina</label>
+						<div class="btn-group form-control" style="border:none;">
+							<button type="button" id="combobox2" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+								@modalValues[1][1]
+							</button>
+							<div class="dropdown-menu">
+								@foreach (var disciplina in Enum.GetValues(typeof(Models.ProfessorMaterias)))
+								{
+									<a class="dropdown-item" style="cursor:pointer;" @onclick='() => GetComboClick("professor_1", disciplina.ToString())'>@disciplina</a>
+								}
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+				<button type="button" class="btn btn-success" data-dismiss="modal" @onclick='() => OnButtonClick("professorbtn")'>Adicionar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<!-- ///// MODAL #3 ///// -->
+<div class="modal fade" id="EstudanteModal" tabindex="-1" role="dialog" aria-labelledby="EstudanteModalLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="DiarioModalLabel">Adicionar Estudante</h5>
+
+			</div>
+			<div class="modal-body">
+				<form>
+					<div class="form-group">
+						<label for="message-text" class="col-form-label">Estudante</label>
+						<div class="btn-group form-control" style="border:none;">
+							<input type="text" class="form-control" id="inputTurmaEstudante" placeholder="Nome do Estudante" @oninput='(ChangeEventArgs e) => inputTextChange(e, "estudante")'>
+						</div>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+				<button type="button" class="btn btn-success" data-dismiss="modal" @onclick='() => OnButtonClick("estudantebtn")'>Adicionar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- ///// MODAL #5 ///// -->
+<div class="modal fade" id="confirmarModal" tabindex="-1" role="dialog" aria-labelledby="confirmarModalLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalLabel">Confirmação</h5>
+			</div>
+			<div class="modal-body">
+				Deseja realmente deletar esta turma?
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+				<button type="button" class="btn btn-danger" data-dismiss="modal" @onclick='() => OnButtonClick("delturmabtn")'>Deletar</button>
+			</div>
+		</div>
+	</div>
+</div>
+}

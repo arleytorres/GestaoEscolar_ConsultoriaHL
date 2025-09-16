@@ -1,0 +1,10 @@
+﻿.circle{
+    transition: 0.5s all;
+    cursor: pointer;
+}
+
+.circle:hover{
+    transform: translateY(-10px);
+    background-color: rgba(51, 163, 255, 0.671);
+}
+

@@ -1,0 +1,25 @@
+﻿@if (!string.IsNullOrEmpty(Message))
+{
+    <div class="@PopupClass" role="alert">
+        <strong>@Message</strong>
+        <button type="button" class="btn-close" aria-label="Close" @onclick="Dismiss"></button>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string? Message { get; set; }
+
+    [Parameter]
+    public Models.PopupType Type { get; set; } = Models.PopupType.Success;
+
+    [Parameter]
+    public EventCallback OnDismiss { get; set; }
+
+    private string PopupClass => $"alert alert-{Type.ToString().ToLower()} alert-dismissible fade show";
+
+    private async Task Dismiss()
+    {
+        await OnDismiss.InvokeAsync();
+    }
+}

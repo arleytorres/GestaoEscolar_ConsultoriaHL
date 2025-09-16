@@ -4,7 +4,7 @@ Um sistema de **gestão escolar** desenvolvido em **.NET 9** com **Blazor**, pro
 O projeto oferece funcionalidades como:  
 - Gerenciamento de alunos e professores
 - Controle de turmas
-- scalabilidade e robustez para escolas de diferentes portes  
+- scalabilidade e robustez
 
 ---
 

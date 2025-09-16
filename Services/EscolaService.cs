@@ -52,7 +52,7 @@ namespace BlazorApp1.Services
             if (Dados.Turmas.FirstOrDefault(x => x.Id.Equals(turmaId)) is not TurmaModel turma)
                 return new IEscolaServiceResponse(false, "O identificador da turma não é válido.");
 
-            foreach (var professor in Dados.Professores)
+            foreach (var professor in Dados.Professores.ToList())
             {
                 foreach (var aula in professor.Turmas.Where(x => x.turmaId.Equals(turmaId)).ToList())
                     professor.Turmas.Remove(aula);
@@ -66,6 +66,12 @@ namespace BlazorApp1.Services
                 Dados.Calendarios.Remove(calendario);
 
             Dados.Turmas.Remove(turma);
+
+            var matriculados = Dados.Turmas.SelectMany(x => x.Alunos).ToList();
+
+            foreach (var aluno in Dados.Alunos.Where(x => !matriculados.Contains(x.Id)).ToList())
+                Dados.Alunos.Remove(aluno);
+
             _service.Save();
             return new IEscolaServiceResponse(true, "Turma removida");
         }
